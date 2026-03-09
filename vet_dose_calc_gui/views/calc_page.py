@@ -62,6 +62,9 @@ def render():
 
     if st.button("計算", type="primary"):
         _do_calculate(species, weight, drug_name, drugs)
+    elif st.session_state.get("calc_gui_data") is not None:
+        # rerun後もsession_stateから結果を再表示（投与日数等の変更対応）
+        _show_saved_results()
 
 
 def _do_calculate(species, weight, drug_name, drugs):
@@ -100,6 +103,20 @@ def _do_calculate(species, weight, drug_name, drugs):
         dose_results, product_amounts_list, safety_flags,
     )
 
+    # session_stateに保存（rerun後も結果を維持するため）
+    st.session_state["calc_gui_data"] = gui_data
+    st.session_state["calc_drug_name"] = drug_name
+
+    _display_warnings(gui_data["warnings"])
+    _display_calc_result(gui_data)
+    _display_prescription(gui_data, drug_name)
+    st.success(DISCLAIMER_CALC)
+
+
+def _show_saved_results():
+    """session_stateに保存済みの計算結果を再表示する。"""
+    gui_data = st.session_state["calc_gui_data"]
+    drug_name = st.session_state["calc_drug_name"]
     _display_warnings(gui_data["warnings"])
     _display_calc_result(gui_data)
     _display_prescription(gui_data, drug_name)
