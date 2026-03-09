@@ -4,6 +4,8 @@
 出力: 薬剤候補カード（チェックボックスでDB登録可能）
 """
 
+import re
+
 import streamlit as st
 
 from drug_registry import add_drug, load_drugs
@@ -20,6 +22,48 @@ from vet_dose_calc_gui.gui_formatter import (
 # Streamlitウィジェットのエイリアス（verify.py IO検出回避）
 _txt = getattr(st, "text_" + "input")
 _num = getattr(st, "number_" + "input")
+
+
+def _normalize_dose_str(raw: str) -> str:
+    """AI応答の用量文字列を 'min-max' または 'value' 形式に正規化する。
+
+    変換ルール:
+      - 単位除去: "10-25mg/kg" → "10-25"
+      - チルダ→ハイフン: "10~25" → "10-25"
+      - カンマ区切り（複数適応症混在）: "25, 10-15" → "10-25"（全数値のmin-max）
+      - 数値を抽出できない場合はそのまま返す
+    """
+    s = str(raw).strip()
+
+    # 単位除去（mg/kg, mg, kg 等）
+    s = re.sub(r"\s*(mg/kg|mg|kg)\s*$", "", s, flags=re.IGNORECASE)
+
+    # チルダ → ハイフン
+    s = s.replace("~", "-").replace("〜", "-").replace("～", "-")
+
+    # カンマが含まれる場合: 全数値を抽出してmin-maxにする
+    if "," in s:
+        nums = [float(m) for m in re.findall(r"[\d.]+", s)]
+        if nums:
+            lo, hi = min(nums), max(nums)
+            return str(lo) if lo == hi else f"{lo:g}-{hi:g}"
+        return str(raw).strip()  # 数値なし → 元値
+
+    # 既にハイフン区切りの範囲形式か単一数値かチェック
+    m = re.match(r"^([\d.]+)\s*-\s*([\d.]+)$", s)
+    if m:
+        lo, hi = sorted([float(m.group(1)), float(m.group(2))])
+        return str(lo) if lo == hi else f"{lo:g}-{hi:g}"
+
+    # 単一数値
+    try:
+        v = float(s)
+        return f"{v:g}"
+    except ValueError:
+        pass
+
+    # パース不能 → そのまま返す
+    return str(raw).strip()
 
 
 def render():
@@ -200,9 +244,18 @@ def _build_drug_entry(cand):
     }
 
     if cand.get("indication"):
+        raw_dose = cand.get("dose_mg_per_kg", "")
+        normalized_dose = _normalize_dose_str(raw_dose)
+
+        if normalized_dose != str(raw_dose).strip():
+            st.warning(
+                f"用量「{raw_dose}」を「{normalized_dose}」に正規化しました。"
+                "登録後に用量を確認してください。"
+            )
+
         drug["species_data"][species_key]["indications"].append({
             "indication": cand["indication"],
-            "dose_mg_per_kg": cand.get("dose_mg_per_kg", ""),
+            "dose_mg_per_kg": normalized_dose,
             "frequency": cand.get("frequency", ""),
             "route": cand.get("route", ""),
             "duration": cand.get("duration", ""),
