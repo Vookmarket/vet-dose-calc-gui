@@ -9,10 +9,23 @@ from pathlib import Path
 
 import streamlit as st
 
-# VT-004のコアモジュールをimportするためパスを追加
-_VT004_DIR = Path(__file__).resolve().parent.parent.parent / "VT-004"
-if str(_VT004_DIR) not in sys.path:
-    sys.path.insert(0, str(_VT004_DIR))
+# --- パス解決 ---
+# 1. 自パッケージ（vet_dose_calc_gui）をimportできるようリポジトリルートを追加
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+# 2. VT-004コアモジュールのパス追加（複数候補を順に探索）
+_PARENT = _REPO_ROOT.parent
+_VT004_CANDIDATES = [
+    _PARENT / "vet-dose-calc",   # GitHub clone名
+    _PARENT / "VT-004",          # 開発環境（tools/VT-004）
+    _PARENT / "vet_dose_calc",   # pip editable install
+]
+for _candidate in _VT004_CANDIDATES:
+    if _candidate.is_dir() and str(_candidate) not in sys.path:
+        sys.path.insert(0, str(_candidate))
+        break
 
 from vet_dose_calc_gui import __version__
 from vet_dose_calc_gui.gui_formatter import (
