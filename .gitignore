@@ -7,3 +7,4 @@ dist/
 build/
 .env
 *.yaml.bak
+data/user_settings.yaml
