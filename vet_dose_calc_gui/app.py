@@ -61,7 +61,7 @@ from vet_dose_calc_gui.gui_formatter import (
     DISCLAIMER_HEADER,
     DISCLAIMER_SIDEBAR,
 )
-from vet_dose_calc_gui.pages import calc_page, suggest_page, manage_page
+from vet_dose_calc_gui.views import calc_page, suggest_page, manage_page
 
 # --- ユーザー設定ファイル ---
 _USER_SETTINGS_PATH = _REPO_ROOT / "data" / "user_settings.yaml"

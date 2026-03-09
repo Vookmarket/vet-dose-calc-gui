@@ -13,7 +13,7 @@ from product_registry import (
     VALID_STRENGTH_UNITS, VALID_FORMS,
 )
 from vet_dose_calc_gui.gui_formatter import SPECIES_LABELS
-from vet_dose_calc_gui.pages.manage_forms import (
+from vet_dose_calc_gui.views.manage_forms import (
     render_add_drug_form,
     render_add_product_form,
 )
