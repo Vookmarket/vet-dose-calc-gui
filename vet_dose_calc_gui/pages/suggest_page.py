@@ -55,9 +55,12 @@ def render():
             return
         _do_suggest(species, symptoms_text, weight)
 
+    # rerun後もsession_stateから結果を復元して表示
+    _show_saved_results()
+
 
 def _do_suggest(species, symptoms_text, weight):
-    """薬剤提案を実行し結果を表示する。"""
+    """薬剤提案を実行し結果をsession_stateに保存する。"""
     symptoms = [s.strip() for s in symptoms_text.split(",") if s.strip()]
 
     try:
@@ -77,17 +80,34 @@ def _do_suggest(species, symptoms_text, weight):
     candidates = format_suggest_for_gui(result)
 
     if not candidates:
+        # 結果なしの場合は保存済みデータをクリア
+        st.session_state.pop("suggest_candidates", None)
+        st.session_state.pop("suggest_grounding_urls", None)
         st.info("候補が見つかりませんでした。キーワードを変えてお試しください。")
         st.caption(DISCLAIMER_SUGGEST)
+        return
+
+    # 検索結果をsession_stateに保存（rerun後も保持）
+    st.session_state["suggest_candidates"] = candidates
+    st.session_state["suggest_grounding_urls"] = (
+        result.grounding_urls if result.grounding_urls else []
+    )
+
+
+def _show_saved_results():
+    """session_stateに保存済みの検索結果を表示する。"""
+    candidates = st.session_state.get("suggest_candidates")
+    if not candidates:
         return
 
     st.subheader(f"候補: {len(candidates)} 件")
     for i, cand in enumerate(candidates):
         _display_candidate(cand, i)
 
-    if result.grounding_urls:
+    grounding_urls = st.session_state.get("suggest_grounding_urls", [])
+    if grounding_urls:
         with st.expander("参考情報（Google検索結果）"):
-            for g in result.grounding_urls[:5]:
+            for g in grounding_urls[:5]:
                 title = g.get("title", "")
                 uri = g.get("uri", "")
                 if title and uri:
