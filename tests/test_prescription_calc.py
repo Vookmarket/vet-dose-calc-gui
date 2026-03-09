@@ -1,12 +1,8 @@
 """処方計算ロジックのユニットテスト -- 6ケース"""
 
-import sys
-from pathlib import Path
-
 import pytest
 
-# VT-005パッケージをインポート可能にする
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# パス解決はtests/conftest.pyで実施（GitHub clone/開発環境 両対応）
 
 from vet_dose_calc_gui.prescription_calc import (
     PrescriptionResult,

@@ -1,15 +1,10 @@
 """GUI表示用フォーマッターのユニットテスト -- 6ケース"""
 
-import sys
-from pathlib import Path
 from dataclasses import dataclass, field
 
 import pytest
 
-# VT-005パッケージとVT-004をインポート可能にする
-_BASE = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_BASE))
-sys.path.insert(0, str(_BASE.parent / "VT-004"))
+# パス解決はtests/conftest.pyで実施（GitHub clone/開発環境 両対応）
 
 from vet_dose_calc_gui.gui_formatter import (
     format_calc_for_gui,
