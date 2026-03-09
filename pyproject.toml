@@ -1,0 +1,21 @@
+[project]
+name = "vet-dose-calc-gui"
+version = "1.0.0"
+description = "獣医薬用量計算GUIツール。VT-004（CLI版）のStreamlit版。"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "ぶっくま (Vookmarket)"},
+]
+dependencies = [
+    "streamlit",
+    "PyYAML>=6.0",
+]
+
+[project.urls]
+Repository = "https://github.com/Vookmarket/vet-dose-calc-gui"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"

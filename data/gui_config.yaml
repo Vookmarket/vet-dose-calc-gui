@@ -1,0 +1,29 @@
+# VT-005 GUI固有設定
+
+# ページタイトル
+page_title: "薬用量クイック計算 GUI"
+page_icon: "💊"
+
+# 表示テキスト
+labels:
+  species:
+    dog: "犬"
+    cat: "猫"
+  frequency:
+    SID: "1回/日"
+    BID: "2回/日"
+    TID: "3回/日"
+    QID: "4回/日"
+    EOD: "隔日"
+
+# 処方計算デフォルト
+prescription_defaults:
+  days: 7
+  max_days: 365
+
+# 入力制約
+weight:
+  min: 0.1
+  max: 200.0
+  default: 5.0
+  step: 0.1
